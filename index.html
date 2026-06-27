@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="system">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,14 +25,6 @@
             --card-bg: #1e293b;
             --border: #475569;
         }
-        [data-theme="system"] {
-            @media (prefers-color-scheme: dark) {
-                --bg: #0f172a;
-                --text: #f1f5f9;
-                --card-bg: #1e293b;
-                --border: #475569;
-            }
-        }
         body {
             background: var(--bg);
             color: var(--text);
@@ -45,7 +37,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+        }
+        .browser-tip {
+            text-align: center;
+            font-size: 16px;
             margin-bottom: 2.5rem;
+        }
+        .browser-tip a {
+            color: var(--primary);
         }
         h1 {
             font-size: 30px;
@@ -68,48 +68,6 @@
             color: white;
             border-color: var(--primary);
         }
-        /* 搜索区域 */
-        .search-container {
-            max-width: 680px;
-            margin: 0 auto 3.5rem;
-        }
-        #search-input {
-            width: 100%;
-            padding: 14px 20px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            font-size: 16px;
-            outline: none;
-            background: var(--card-bg);
-            color: var(--text);
-        }
-        #search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        .engine-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-        .engine-btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #fff;
-            opacity: 0.75;
-        }
-        .engine-btn.active {
-            opacity: 1;
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-        .baidu { background: #2d7ff9; }
-        .bing { background: #00a4ef; }
-        .google { background: #ea4335; }
-        .ddg { background: #de5833; }
         /* 导航分类 */
         .category-block {
             margin-bottom: 36px;
@@ -184,21 +142,14 @@
     <div class="header-bar">
         <h1>个人开发导航面板</h1>
         <div class="theme-switch">
-            <button class="theme-btn" data-mode="system">跟随系统</button>
             <button class="theme-btn" data-mode="light">浅色</button>
             <button class="theme-btn" data-mode="dark">深色</button>
         </div>
     </div>
 
-    <!-- 搜索栏 + 四大搜索引擎 -->
-    <div class="search-container">
-        <input id="search-input" placeholder="输入关键词，回车使用默认搜索引擎搜索">
-        <div class="engine-buttons">
-            <button class="engine-btn baidu" data-engine="baidu">百度</button>
-            <button class="engine-btn bing" data-engine="bing">必应 Bing</button>
-            <button class="engine-btn google" data-engine="google">Google</button>
-            <button class="engine-btn ddg" data-engine="ddg">DuckDuckGo</button>
-        </div>
+    <!-- 顶部浏览器下载提示 -->
+    <div class="browser-tip">
+        没有浏览器? <a href="https://github.com/ungoogled-software/ungoogled-chromium" target="_blank">点击这里下载一个!</a>
     </div>
 
     <!-- GitHub 快捷入口 -->
@@ -210,17 +161,30 @@
         </div>
     </div>
 
-    <!-- 开发&内网导航 -->
+    <!-- 开发工具下载（Chromium） -->
     <div class="category-block">
-        <div class="category-title">开发 & 内网服务</div>
+        <div class="category-title">开发工具下载</div>
         <div class="link-group">
-            <a class="nav-card" href="https://gitee.com" target="_blank">Gitee</a>
-            <a class="nav-card" href="https://ubuntu.com" target="_blank">Ubuntu</a>
-            <a class="nav-card" href="http://192.168.x.1" target="_blank">路由器后台</a>
+            <h1>浏览器</h1>
+            <a class="nav-card" href="https://github.com/Hibbiki/chromium-win64/releases" target="_blank">Hibbiki Chromium</a>
+            <a class="nav-card" href="https://github.com/ungoogled-software/ungoogled-chromium" target="_blank">ungoogled-chromium</a>
+            <a class="nav-card" href="https://chromium.woolyss.com" target="_blank">woolyss下载站（即将停服）</a>
+            <a class="nav-card" href="https://chromium.woolyss.com" target="_blank">谷歌原版Chrome</a>
+            <h1>操作系统</h1>
+            <a class="nav-card" href="https://ubuntu.com/download/desktop" target="_blank">Ubuntu</a>
+            <a class="nav-card" href="https://fedoraproject.org/workstation/download" target="_blank">Fedora</a>
+            <a class="nav-card" href="https://mirrors.ustc.edu.cn/archlinux/iso" target="_blank">Arch Linux/<a>
+            <a class="nav-card" href="https://www.kali.org/get-kali/" target="_blank">Kali Linux</a>
+            <a class="nav-card" href="https://www.debian.org/distrib/" target="_blank">Debian</a>
+            <a class="nav-card" href="https://mirrors.ustc.edu.cn/linuxmint-cd/stable" target="_blank">Linux Mint</a>
+            <a class="nav-card" href="https://manjaro.org/products/download/x86">Manjaro</a>
+            <a class="nav-card" href="https://mirrors.ustc.edu.cn/linuxmint-cd/debian" target="_blank">LMDE</a>
+            <a class="nav-card" href="https://trisquel.info/en/download" target="_blank">Trisquel</a>
+
         </div>
     </div>
 
-    <!-- Linux 常用命令大全（支持一键复制） -->
+     <!-- Linux 常用命令速查（支持一键复制） -->
     <div class="category-block">
         <div class="category-title">Linux 常用命令速查</div>
         <div class="cmd-list">
@@ -262,29 +226,18 @@
             </div>
         </div>
     </div>
-
     <script>
         // 全局变量
-        let defaultEngine = "baidu";
-        let currentTheme = "system";
-        const searchInput = document.getElementById("search-input");
-
-        // ========== 1. 本地存储读写（记忆搜索引擎、主题） ==========
+        let currentTheme = "light";
+        // ========== 1. 本地存储读写（仅记忆主题） ==========
         function saveStorage(key, val) {
             localStorage.setItem(key, val);
         }
         function getStorage(key) {
             return localStorage.getItem(key);
         }
-
         // 页面加载读取记忆配置
         window.addEventListener("DOMContentLoaded", () => {
-            // 读取上次搜索引擎
-            const saveEngine = getStorage("search_engine");
-            if (saveEngine) {
-                defaultEngine = saveEngine;
-                setEngineActive(defaultEngine);
-            }
             // 读取上次主题
             const saveTheme = getStorage("site_theme");
             if (saveTheme) {
@@ -293,50 +246,7 @@
                 setThemeActive(currentTheme);
             }
         });
-
-        // ========== 2. 搜索引擎切换逻辑 ==========
-        // 标记激活按钮
-        function setEngineActive(engine) {
-            document.querySelectorAll(".engine-btn").forEach(btn => {
-                btn.classList.remove("active");
-                if (btn.dataset.engine === engine) btn.classList.add("active");
-            })
-        }
-        // 点击切换默认引擎并保存
-        document.querySelectorAll(".engine-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                defaultEngine = btn.dataset.engine;
-                setEngineActive(defaultEngine);
-                saveStorage("search_engine", defaultEngine);
-            })
-        })
-        // 搜索跳转函数
-        function runSearch() {
-            const kw = searchInput.value.trim();
-            if (!kw) return;
-            let targetUrl;
-            switch(defaultEngine) {
-                case "baidu":
-                    targetUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(kw)}`;
-                    break;
-                case "bing":
-                    targetUrl = `https://cn.bing.com/search?q=${encodeURIComponent(kw)}`;
-                    break;
-                case "google":
-                    targetUrl = `https://google.com/search?q=${encodeURIComponent(kw)}`;
-                    break;
-                case "ddg":
-                    targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(kw)}`;
-                    break;
-            }
-            window.open(targetUrl, "_blank");
-        }
-        // 回车执行搜索
-        searchInput.addEventListener("keydown", e => {
-            if (e.key === "Enter") runSearch();
-        })
-
-        // ========== 3. 深浅色主题切换逻辑 ==========
+        // ========== 2. 深浅色主题切换逻辑 ==========
         function setThemeActive(mode) {
             document.querySelectorAll(".theme-btn").forEach(btn => {
                 btn.classList.remove("active");
@@ -351,8 +261,7 @@
                 saveStorage("site_theme", currentTheme);
             })
         })
-
-        // ========== 4. Linux命令一键复制功能 ==========
+        // ========== 3. Linux命令一键复制功能 ==========
         function copyText(btn) {
             const text = btn.parentElement.querySelector(".cmd-text").innerText;
             navigator.clipboard.writeText(text);
