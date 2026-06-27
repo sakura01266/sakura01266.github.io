@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="个人开发导航面板，聚合GitHub、浏览器、Linux系统、编程开发工具下载与Linux常用命令速查">
+    <meta name="description" content="个人开发导航面板，聚合GitHub、浏览器、Linux/BSD系统、编程开发工具下载与Linux常用命令速查">
     <title>个人开发导航面板</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>💻</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
         :root {
             --bg: #f6f8fa;
             --text: #1f2937;
@@ -21,6 +15,7 @@
             --primary: #2563eb;
             --primary-light: rgba(37, 99, 235, 0.15);
             --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --anim-duration: 0.22s;
         }
         [data-theme="dark"] {
             --bg: #0f172a;
@@ -28,6 +23,12 @@
             --card-bg: #1e293b;
             --border: #475569;
             --shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
         }
         html {
             scroll-behavior: smooth;
@@ -38,7 +39,12 @@
             padding: 4rem 5%;
             max-width: 1300px;
             margin: 0 auto;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background var(--anim-duration) ease, color var(--anim-duration) ease;
+            opacity: 0;
+            animation: pageFadeIn 0.4s ease forwards;
+        }
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
         }
         /* 顶部标题栏 */
         .header-bar {
@@ -46,6 +52,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
+            transition: transform var(--anim-duration);
+        }
+        .header-bar.shrink {
+            transform: scale(0.97);
         }
         h1 {
             font-size: 30px;
@@ -69,9 +79,14 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
+            transition: all var(--anim-duration) ease;
+            overflow: hidden;
         }
         .browser-tip.close {
-            display: none;
+            height: 0;
+            padding: 0;
+            margin-bottom: 0;
+            opacity: 0;
         }
         .browser-tip a {
             color: var(--primary);
@@ -83,6 +98,10 @@
             cursor: pointer;
             font-size: 18px;
             opacity: 0.7;
+            padding: 0 6px;
+        }
+        .close-tip:hover {
+            opacity: 1;
         }
         /* 主题切换 */
         .theme-switch {
@@ -96,11 +115,14 @@
             color: var(--text);
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--anim-duration);
         }
         .theme-btn.active {
             background: var(--primary);
             color: white;
+            border-color: var(--primary);
+        }
+        .theme-btn:hover:not(.active) {
             border-color: var(--primary);
         }
         /* 导航分类 */
@@ -127,14 +149,14 @@
             text-decoration: none;
             color: var(--text);
             font-size: 15px;
-            transition: all 0.2s ease;
+            transition: all var(--anim-duration) ease;
             box-shadow: var(--shadow);
         }
         .nav-card:hover {
             background-color: var(--primary);
             color: #fff;
             border-color: var(--primary);
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.02);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
         /* Linux命令板块 */
@@ -148,6 +170,7 @@
             margin-bottom: 14px;
             font-size: 15px;
             outline: none;
+            transition: border var(--anim-duration);
         }
         .cmd-search:focus {
             border-color: var(--primary);
@@ -162,11 +185,16 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow);
+            transition: var(--anim-duration);
+        }
+        .cmd-box:hover {
+            border-color: var(--primary-light);
         }
         .cmd-text {
             font-family: monospace;
             word-break: break-all;
             padding-right: 10px;
+            line-height: 1.5;
         }
         .copy-btn {
             padding: 4px 10px;
@@ -176,6 +204,15 @@
             border-radius: 4px;
             cursor: pointer;
             white-space: nowrap;
+            transition: opacity var(--anim-duration);
+        }
+        .copy-btn:active {
+            opacity: 0.8;
+        }
+        .empty-tip {
+            text-align: center;
+            padding: 24px;
+            opacity: 0.6;
         }
         /* 回到顶部 */
         .back-top {
@@ -192,16 +229,19 @@
             cursor: pointer;
             opacity: 0;
             pointer-events: none;
-            transition: 0.3s;
+            transition: var(--anim-duration);
         }
         .back-top.show {
             opacity: 1;
             pointer-events: auto;
         }
+        .back-top:hover {
+            transform: translateY(-3px);
+        }
         /* 移动端适配 */
         @media (max-width: 600px) {
             body {
-                padding: 2rem 4%;
+                padding: 2rem 3%;
             }
             h1 {
                 font-size: 24px;
@@ -214,12 +254,21 @@
             .back-top {
                 bottom: 16px;
                 right: 16px;
+                width: 40px;
+                height: 40px;
+            }
+            .link-group {
+                gap: 8px;
+            }
+            .nav-card {
+                padding: 8px 14px;
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header-bar">
+    <div class="header-bar" id="headerWrap">
         <h1>个人开发导航面板</h1>
         <div class="theme-switch">
             <button class="theme-btn" data-mode="light">浅色</button>
@@ -256,178 +305,207 @@
     <button class="back-top" id="backTop">↑</button>
 
     <script>
-        // ========== 配置区：新增链接/命令只改这里，不用动DOM ==========
-        const config = {
-            githubLinks: [
-                {name: "GitHub 主页", url: "https://github.com"},
-                {name: "本项目发布页", url: "https://github.com/sakura01266/sakura01266.github.io"}
-            ],
-            tools: [
-                {type: "浏览器", list: [
-                    {name: "Hibbiki Chromium", url: "https://github.com/Hibbiki/chromium-win64/releases"},
-                    {name: "ungoogled-chromium", url: "https://github.com/ungoogled-software/ungoogled-chromium-windows/releases"},
-                    {name: "woolyss-chromium下载站（即将停服）", url: "https://chromium.woolyss.com"},
-                    {name: "谷歌原版Chrome（可能连不上）", url: "https://www.google.com/chrome/"},
-                    {name: "Firefox", url: "https://www.firefox.com/zh-CN/download/all/"},
-                    {name: "Librewolf", url: "https://librewolf.net/installation/"},
-                    {name: "Brave", url: "https://www.brave.com/zh/"}
-                ]},
-                {type: "操作系统", list: [
-                    {name: "Ubuntu", url: "https://ubuntu.com/download/desktop"},
-                    {name: "Fedora", url: "https://fedoraproject.org/workstation/download"},
-                    {name: "Arch Linux", url: "https://mirrors.ustc.edu.cn/archlinux/iso"},
-                    {name: "Kali Linux", url: "https://www.kali.org/get-kali/"},
-                    {name: "Debian", url: "https://www.debian.org/distrib/"},
-                    {name: "Linux Mint", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/stable"},
-                    {name: "Manjaro", url: "https://manjaro.org/products/download/x86"},
-                    {name: "LMDE", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/debian"},
-                    {name: "Trisquel", url: "https://trisquel.info/en/download"}
-                ]},
-                {type: "开发工具", list: [
-                    {name: "Android Studio", url: "https://developer.android.google.cn/studio"},
-                    {name: "Visual Studio Code", url: "https://code.visualstudio.com/Download"},
-                    {name: "Visual Studio", url: "https://visualstudio.microsoft.com/zh-hans/downloads/"},
-                    {name: "vscodium", url: "https://github.com/VSCodium/vscodium/releases"},
-                    {name: "Node.js", url: "https://nodejs.org/zh-cn/download/"},
-                    {name: "Python", url: "https://www.python.org/downloads/"},
-                    {name: "Pycharm", url: "https://www.jetbrains.com.cn/pycharm/download"},
-                    {name: "Android Studio Preview", url: "https://developer.android.google.cn/studio/preview"},
-                    {name: "ADB", url: "https://developer.android.google.cn/tools/releases/platform-tools"},
-                    {name: "lua", url: "https://www.lua.org/download.html"}
-                ]}
-            ],
-            cmds: [
-                "apt update && apt upgrade -y",
-                "dnf update -y",
-                "lsblk / fdisk -l 查看磁盘分区",
-                "smartctl --scan 硬盘健康检测",
-                "systemctl start / stop / enable 服务名",
-                "nmap 192.168.1.0/24 内网扫描",
-                "chmod 755 / chown 用户:组 文件",
-                "git add . && git commit -m \"msg\" && git push",
-                "docker ps / docker run / docker rm"
-            ]
-        };
+        (function() {
+            // ========== 配置区｜新增链接/系统/命令仅修改此处 ==========
+            const config = {
+                githubLinks: [
+                    {name: "GitHub 主页", url: "https://github.com"},
+                    {name: "本项目发布页", url: "https://github.com/sakura01266/sakura01266.github.io"}
+                ],
+                tools: [
+                    {
+                        type: "浏览器",
+                        list: [
+                            {name: "Hibbiki Chromium", url: "https://github.com/Hibbiki/chromium-win64/releases"},
+                            {name: "ungoogled-chromium", url: "https://github.com/ungoogled-software/ungoogled-chromium-windows/releases"},
+                            {name: "woolyss-chromium下载站（即将停服）", url: "https://chromium.woolyss.com"},
+                            {name: "谷歌原版Chrome（国内访问困难）", url: "https://www.google.com/chrome/"},
+                            {name: "Firefox", url: "https://www.firefox.com/zh-CN/download/all/"},
+                            {name: "Librewolf", url: "https://librewolf.net/installation/"},
+                            {name: "谷歌原版Chromium", url: "https://www.chromium.org/Home"},
+                            {name: "Brave", url: "https://www.brave.com/zh/"}
+                        ]
+                    },
+                    {
+                        type: "操作系统",
+                        list: [
+                            {name: "Ubuntu", url: "https://ubuntu.com/download/desktop"},
+                            {name: "Fedora", url: "https://fedoraproject.org/workstation/download"},
+                            {name: "Arch Linux（中科大镜像）", url: "https://mirrors.ustc.edu.cn/archlinux/iso"},
+                            {name: "Kali Linux", url: "https://www.kali.org/get-kali/"},
+                            {name: "Debian", url: "https://www.debian.org/distrib/"},
+                            {name: "Linux Mint", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/stable"},
+                            {name: "Manjaro", url: "https://manjaro.org/products/download/x86"},
+                            {name: "LMDE", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/debian"},
+                            {name: "Trisquel", url: "https://trisquel.info/en/download"},
+                            {name: "FreeBSD", url: "https://www.freebsd.org/where"},
+                            {name: "OpenBSD", url: "https://www.openbsd.org/faq/faq4.html#Download"},
+                            {name: "NetBSD", url: "https://www.netbsd.org/"}
+                        ]
+                    },
+                    {
+                        type: "开发工具",
+                        list: [
+                            {name: "Android Studio", url: "https://developer.android.google.cn/studio"},
+                            {name: "Visual Studio Code", url: "https://code.visualstudio.com/Download"},
+                            {name: "Visual Studio", url: "https://visualstudio.microsoft.com/zh-hans/downloads/"},
+                            {name: "vscodium", url: "https://github.com/VSCodium/vscodium/releases"},
+                            {name: "Node.js", url: "https://nodejs.org/zh-cn/download/"},
+                            {name: "Python", url: "https://www.python.org/downloads/"},
+                            {name: "Pycharm", url: "https://www.jetbrains.com.cn/pycharm/download"},
+                            {name: "Android Studio Preview", url: "https://developer.android.google.cn/studio/preview"},
+                            {name: "ADB Platform Tools", url: "https://developer.android.google.cn/tools/releases/platform-tools"},
+                            {name: "Lua", url: "https://www.lua.org/download.html"}
+                        ]
+                    }
+                ],
+                cmds: [
+                    "apt update && apt upgrade -y",
+                    "dnf update -y",
+                    "lsblk / fdisk -l 查看磁盘分区",
+                    "smartctl --scan 硬盘健康检测",
+                    "systemctl start / stop / enable 服务名",
+                    "nmap 192.168.1.0/24 内网扫描",
+                    "chmod 755 / chown 用户:组 文件",
+                    "git add . && git commit -m \"msg\" && git push",
+                    "docker ps / docker run / docker rm"
+                ]
+            };
 
-        // ========== 本地存储工具 ==========
-        function saveStorage(key, val) {
-            localStorage.setItem(key, val);
-        }
-        function getStorage(key) {
-            return localStorage.getItem(key);
-        }
+            // 本地存储封装
+            const Storage = {
+                set(key, val) {
+                    localStorage.setItem(key, val);
+                },
+                get(key) {
+                    return localStorage.getItem(key);
+                }
+            };
 
-        // ========== 页面渲染函数 ==========
-        function renderGitHub() {
-            const wrap = document.getElementById("githubGroup");
-            wrap.innerHTML = config.githubLinks.map(item => `
-                <a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>
-            `).join("");
-        }
-        function renderTools() {
-            const wrap = document.getElementById("toolGroup");
-            let html = "";
-            config.tools.forEach(group => {
-                html += `<h3>${group.type}</h3>`;
-                group.list.forEach(item => {
-                    html += `<a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>`;
-                })
-            })
-            wrap.innerHTML = html;
-        }
-        function renderCmdList(filter = "") {
-            const wrap = document.getElementById("cmdList");
-            const filterText = filter.toLowerCase();
-            let html = "";
-            config.cmds.forEach(cmd => {
-                if (!cmd.toLowerCase().includes(filterText)) return;
-                html += `
-                    <div class="cmd-box" data-cmd="${cmd}">
-                        <span class="cmd-text">${cmd}</span>
-                        <button class="copy-btn" onclick="copyText(this)">复制</button>
-                    </div>
-                `;
-            })
-            wrap.innerHTML = html;
-        }
+            // DOM元素缓存
+            const el = {
+                githubGroup: document.getElementById("githubGroup"),
+                toolGroup: document.getElementById("toolGroup"),
+                cmdList: document.getElementById("cmdList"),
+                cmdSearch: document.getElementById("cmdSearch"),
+                backTop: document.getElementById("backTop"),
+                browserTip: document.getElementById("browserTip"),
+                closeTip: document.getElementById("closeTip"),
+                headerWrap: document.getElementById("headerWrap"),
+                themeBtns: document.querySelectorAll(".theme-btn")
+            };
 
-        // ========== 复制命令（增加异常捕获） ==========
-        window.copyText = async function(btn) {
-            try {
-                const text = btn.parentElement.querySelector(".cmd-text").innerText;
-                await navigator.clipboard.writeText(text);
-                btn.innerText = "已复制!";
-            } catch (err) {
-                btn.innerText = "复制失败";
+            // 渲染GitHub链接
+            function renderGitHub() {
+                el.githubGroup.innerHTML = config.githubLinks
+                    .map(item => `<a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>`)
+                    .join("");
             }
-            setTimeout(() => btn.innerText = "复制", 1200);
-        }
 
-        // ========== 主题切换 ==========
-        let currentTheme = "light";
-        function setThemeActive(mode) {
-            document.querySelectorAll(".theme-btn").forEach(btn => {
-                btn.classList.remove("active");
-                if (btn.dataset.mode === mode) btn.classList.add("active");
-            })
-        }
-        function initTheme() {
-            const saveTheme = getStorage("site_theme");
-            if (saveTheme) {
-                currentTheme = saveTheme;
-                document.documentElement.setAttribute("data-theme", currentTheme);
-                setThemeActive(currentTheme);
+            // 渲染工具分类
+            function renderTools() {
+                let html = "";
+                config.tools.forEach(group => {
+                    html += `<h3>${group.type}</h3>`;
+                    group.list.forEach(item => {
+                        html += `<a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>`;
+                    });
+                });
+                el.toolGroup.innerHTML = html;
             }
-            document.querySelectorAll(".theme-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    currentTheme = btn.dataset.mode;
-                    document.documentElement.setAttribute("data-theme", currentTheme);
-                    setThemeActive(currentTheme);
-                    saveStorage("site_theme", currentTheme);
-                })
-            })
-        }
 
-        // ========== 顶部提示关闭 ==========
-        function initTipClose() {
-            const tip = document.getElementById("browserTip");
-            const closeBtn = document.getElementById("closeTip");
-            const isClosed = getStorage("tip_closed");
-            if (isClosed === "1") tip.classList.add("close");
-            closeBtn.addEventListener("click", () => {
-                tip.classList.add("close");
-                saveStorage("tip_closed", "1");
-            })
-        }
+            // 渲染命令列表（带过滤）
+            function renderCmdList(filterText = "") {
+                const kw = filterText.toLowerCase().trim();
+                const matchList = config.cmds.filter(c => c.toLowerCase().includes(kw));
+                if (matchList.length === 0) {
+                    el.cmdList.innerHTML = `<div class="empty-tip">未匹配到相关命令</div>`;
+                    return;
+                }
+                el.cmdList.innerHTML = matchList
+                    .map(cmd => `
+                        <div class="cmd-box" data-cmd="${cmd}">
+                            <span class="cmd-text">${cmd}</span>
+                            <button class="copy-btn">复制</button>
+                        </div>
+                    `).join("");
+            }
 
-        // ========== 命令搜索过滤 ==========
-        function initCmdSearch() {
-            const input = document.getElementById("cmdSearch");
-            input.addEventListener("input", e => {
-                renderCmdList(e.target.value);
-            })
-        }
+            // 复制命令（事件委托，无全局函数）
+            function bindCopyEvent() {
+                el.cmdList.addEventListener("click", async (e) => {
+                    const btn = e.target.closest(".copy-btn");
+                    if (!btn) return;
+                    const text = btn.parentElement.querySelector(".cmd-text").innerText;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        btn.innerText = "已复制!";
+                        // 桌面通知
+                        if (Notification.permission === "granted") {
+                            new Notification("复制成功", { body: text });
+                        }
+                    } catch (err) {
+                        btn.innerText = "复制失败，请手动复制";
+                    }
+                    setTimeout(() => btn.innerText = "复制", 1200);
+                });
+            }
 
-        // ========== 回到顶部按钮 ==========
-        function initBackTop() {
-            const btn = document.getElementById("backTop");
-            window.addEventListener("scroll", () => {
-                if (window.scrollY > 300) btn.classList.add("show");
-                else btn.classList.remove("show");
-            })
-            btn.addEventListener("click", () => window.scrollTo(0, 0));
-        }
+            // 主题初始化
+            function initTheme() {
+                const savedTheme = Storage.get("site_theme") || "light";
+                setTheme(savedTheme);
+                el.themeBtns.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        setTheme(btn.dataset.mode);
+                    });
+                });
+            }
+            function setTheme(mode) {
+                document.documentElement.setAttribute("data-theme", mode);
+                Storage.set("site_theme", mode);
+                el.themeBtns.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+            }
 
-        // ========== 页面加载入口 ==========
-        window.addEventListener("DOMContentLoaded", () => {
-            renderGitHub();
-            renderTools();
-            renderCmdList();
-            initTheme();
-            initTipClose();
-            initCmdSearch();
-            initBackTop();
-        });
+            // 顶部提示关闭
+            function initTipClose() {
+                if (Storage.get("tip_closed") === "1") el.browserTip.classList.add("close");
+                el.closeTip.addEventListener("click", () => {
+                    el.browserTip.classList.add("close");
+                    Storage.set("tip_closed", "1");
+                });
+            }
+
+            // 命令搜索监听
+            function initCmdSearch() {
+                el.cmdSearch.addEventListener("input", e => renderCmdList(e.target.value));
+            }
+
+            // 回到顶部 + 标题缩放
+            function initScrollEffect() {
+                window.addEventListener("scroll", () => {
+                    const scrollY = window.scrollY;
+                    el.backTop.classList.toggle("show", scrollY > 300);
+                    el.headerWrap.classList.toggle("shrink", scrollY > 100);
+                });
+                el.backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+            }
+
+            // 页面入口
+            function init() {
+                renderGitHub();
+                renderTools();
+                renderCmdList();
+                initTheme();
+                initTipClose();
+                initCmdSearch();
+                bindCopyEvent();
+                initScrollEffect();
+                // 请求通知权限（用于复制提示）
+                if (Notification.permission !== "granted") Notification.requestPermission();
+            }
+            document.addEventListener("DOMContentLoaded", init);
+        })();
     </script>
 </body>
 </html>
