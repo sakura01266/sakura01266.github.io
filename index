@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人开发导航面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        :root {
+            --bg: #f6f8fa;
+            --text: #1f2937;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --primary: #2563eb;
+            --primary-light: rgba(37, 99, 235, 0.15);
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --text: #f1f5f9;
+            --card-bg: #1e293b;
+            --border: #475569;
+        }
+        [data-theme="system"] {
+            @media (prefers-color-scheme: dark) {
+                --bg: #0f172a;
+                --text: #f1f5f9;
+                --card-bg: #1e293b;
+                --border: #475569;
+            }
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 4rem 5%;
+            max-width: 1300px;
+            margin: 0 auto;
+            transition: 0.3s all;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        h1 {
+            font-size: 30px;
+            font-weight: 600;
+        }
+        .theme-switch {
+            display: flex;
+            gap: 8px;
+        }
+        .theme-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .theme-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        /* 搜索区域 */
+        .search-container {
+            max-width: 680px;
+            margin: 0 auto 3.5rem;
+        }
+        #search-input {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            outline: none;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        #search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        .engine-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .engine-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #fff;
+            opacity: 0.75;
+        }
+        .engine-btn.active {
+            opacity: 1;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+        .baidu { background: #2d7ff9; }
+        .bing { background: #00a4ef; }
+        .google { background: #ea4335; }
+        .ddg { background: #de5833; }
+        /* 导航分类 */
+        .category-block {
+            margin-bottom: 36px;
+        }
+        .category-title {
+            font-size: 19px;
+            border-left: 5px solid var(--primary);
+            padding-left: 12px;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .link-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .nav-card {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+        .nav-card:hover {
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        /* Linux命令板块 */
+        .cmd-box {
+            margin-top: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cmd-text {
+            font-family: monospace;
+        }
+        .copy-btn {
+            padding: 4px 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            body {
+                padding: 2rem 4%;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .header-bar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h1>个人开发导航面板</h1>
+        <div class="theme-switch">
+            <button class="theme-btn" data-mode="system">跟随系统</button>
+            <button class="theme-btn" data-mode="light">浅色</button>
+            <button class="theme-btn" data-mode="dark">深色</button>
+        </div>
+    </div>
+
+    <!-- 搜索栏 + 四大搜索引擎 -->
+    <div class="search-container">
+        <input id="search-input" placeholder="输入关键词，回车使用默认搜索引擎搜索">
+        <div class="engine-buttons">
+            <button class="engine-btn baidu" data-engine="baidu">百度</button>
+            <button class="engine-btn bing" data-engine="bing">必应 Bing</button>
+            <button class="engine-btn google" data-engine="google">Google</button>
+            <button class="engine-btn ddg" data-engine="ddg">DuckDuckGo</button>
+        </div>
+    </div>
+
+    <!-- GitHub 快捷入口 -->
+    <div class="category-block">
+        <div class="category-title">GitHub 快捷访问</div>
+        <div class="link-group">
+            <a class="nav-card" href="https://github.com" target="_blank">GitHub 主页</a>
+            <a class="nav-card" href="https://github.com/sakura01266/sakura01266.github.io" target="_blank">本导航项目仓库</a>
+        </div>
+    </div>
+
+    <!-- 开发&内网导航 -->
+    <div class="category-block">
+        <div class="category-title">开发 & 内网服务</div>
+        <div class="link-group">
+            <a class="nav-card" href="https://gitee.com" target="_blank">Gitee</a>
+            <a class="nav-card" href="https://ubuntu.com" target="_blank">Ubuntu</a>
+            <a class="nav-card" href="http://192.168.x.1" target="_blank">路由器后台</a>
+        </div>
+    </div>
+
+    <!-- Linux 常用命令大全（支持一键复制） -->
+    <div class="category-block">
+        <div class="category-title">Linux 常用命令速查</div>
+        <div class="cmd-list">
+            <div class="cmd-box">
+                <span class="cmd-text">apt update && apt upgrade -y</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">dnf update -y</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">lsblk / fdisk -l 查看磁盘分区</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">smartctl --scan 硬盘健康检测</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">systemctl start / stop / enable 服务名</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">nmap 192.168.1.0/24 内网扫描</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">chmod 755 / chown 用户:组 文件</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">git add . && git commit -m "msg" && git push</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+            <div class="cmd-box">
+                <span class="cmd-text">docker ps / docker run / docker rm</span>
+                <button class="copy-btn" onclick="copyText(this)">复制</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let defaultEngine = "baidu";
+        let currentTheme = "system";
+        const searchInput = document.getElementById("search-input");
+
+        // ========== 1. 本地存储读写（记忆搜索引擎、主题） ==========
+        function saveStorage(key, val) {
+            localStorage.setItem(key, val);
+        }
+        function getStorage(key) {
+            return localStorage.getItem(key);
+        }
+
+        // 页面加载读取记忆配置
+        window.addEventListener("DOMContentLoaded", () => {
+            // 读取上次搜索引擎
+            const saveEngine = getStorage("search_engine");
+            if (saveEngine) {
+                defaultEngine = saveEngine;
+                setEngineActive(defaultEngine);
+            }
+            // 读取上次主题
+            const saveTheme = getStorage("site_theme");
+            if (saveTheme) {
+                currentTheme = saveTheme;
+                document.documentElement.setAttribute("data-theme", currentTheme);
+                setThemeActive(currentTheme);
+            }
+        });
+
+        // ========== 2. 搜索引擎切换逻辑 ==========
+        // 标记激活按钮
+        function setEngineActive(engine) {
+            document.querySelectorAll(".engine-btn").forEach(btn => {
+                btn.classList.remove("active");
+                if (btn.dataset.engine === engine) btn.classList.add("active");
+            })
+        }
+        // 点击切换默认引擎并保存
+        document.querySelectorAll(".engine-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                defaultEngine = btn.dataset.engine;
+                setEngineActive(defaultEngine);
+                saveStorage("search_engine", defaultEngine);
+            })
+        })
+        // 搜索跳转函数
+        function runSearch() {
+            const kw = searchInput.value.trim();
+            if (!kw) return;
+            let targetUrl;
+            switch(defaultEngine) {
+                case "baidu":
+                    targetUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(kw)}`;
+                    break;
+                case "bing":
+                    targetUrl = `https://cn.bing.com/search?q=${encodeURIComponent(kw)}`;
+                    break;
+                case "google":
+                    targetUrl = `https://google.com/search?q=${encodeURIComponent(kw)}`;
+                    break;
+                case "ddg":
+                    targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(kw)}`;
+                    break;
+            }
+            window.open(targetUrl, "_blank");
+        }
+        // 回车执行搜索
+        searchInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") runSearch();
+        })
+
+        // ========== 3. 深浅色主题切换逻辑 ==========
+        function setThemeActive(mode) {
+            document.querySelectorAll(".theme-btn").forEach(btn => {
+                btn.classList.remove("active");
+                if (btn.dataset.mode === mode) btn.classList.add("active");
+            })
+        }
+        document.querySelectorAll(".theme-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentTheme = btn.dataset.mode;
+                document.documentElement.setAttribute("data-theme", currentTheme);
+                setThemeActive(currentTheme);
+                saveStorage("site_theme", currentTheme);
+            })
+        })
+
+        // ========== 4. Linux命令一键复制功能 ==========
+        function copyText(btn) {
+            const text = btn.parentElement.querySelector(".cmd-text").innerText;
+            navigator.clipboard.writeText(text);
+            btn.innerText = "已复制!";
+            setTimeout(() => btn.innerText = "复制", 1200);
+        }
+    </script>
+</body>
+</html>
