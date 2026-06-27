@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="个人开发导航面板，聚合GitHub、浏览器、Linux系统、编程开发工具下载与Linux常用命令速查">
     <title>个人开发导航面板</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>💻</text></svg>">
     <style>
         * {
             margin: 0;
@@ -18,12 +20,17 @@
             --border: #e5e7eb;
             --primary: #2563eb;
             --primary-light: rgba(37, 99, 235, 0.15);
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         [data-theme="dark"] {
             --bg: #0f172a;
             --text: #f1f5f9;
             --card-bg: #1e293b;
             --border: #475569;
+            --shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        html {
+            scroll-behavior: smooth;
         }
         body {
             background: var(--bg);
@@ -31,26 +38,53 @@
             padding: 4rem 5%;
             max-width: 1300px;
             margin: 0 auto;
-            transition: 0.3s all;
+            transition: background 0.3s ease, color 0.3s ease;
         }
+        /* 顶部标题栏 */
         .header-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-        .browser-tip {
-            text-align: center;
-            font-size: 16px;
-            margin-bottom: 2.5rem;
-        }
-        .browser-tip a {
-            color: var(--primary);
-        }
         h1 {
             font-size: 30px;
             font-weight: 600;
         }
+        h3 {
+            width: 100%;
+            margin: 16px 0 8px;
+            font-size: 17px;
+            opacity: 0.85;
+        }
+        /* 浏览器提示 */
+        .browser-tip {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 2.5rem;
+            padding: 10px 14px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+        .browser-tip.close {
+            display: none;
+        }
+        .browser-tip a {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .close-tip {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+        }
+        /* 主题切换 */
         .theme-switch {
             display: flex;
             gap: 8px;
@@ -62,6 +96,7 @@
             color: var(--text);
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s;
         }
         .theme-btn.active {
             background: var(--primary);
@@ -93,14 +128,30 @@
             color: var(--text);
             font-size: 15px;
             transition: all 0.2s ease;
+            box-shadow: var(--shadow);
         }
         .nav-card:hover {
             background-color: var(--primary);
             color: #fff;
             border-color: var(--primary);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
         /* Linux命令板块 */
+        .cmd-search {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text);
+            margin-bottom: 14px;
+            font-size: 15px;
+            outline: none;
+        }
+        .cmd-search:focus {
+            border-color: var(--primary);
+        }
         .cmd-box {
             margin-top: 12px;
             background: var(--card-bg);
@@ -110,9 +161,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow);
         }
         .cmd-text {
             font-family: monospace;
+            word-break: break-all;
+            padding-right: 10px;
         }
         .copy-btn {
             padding: 4px 10px;
@@ -121,6 +175,28 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            white-space: nowrap;
+        }
+        /* 回到顶部 */
+        .back-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .back-top.show {
+            opacity: 1;
+            pointer-events: auto;
         }
         /* 移动端适配 */
         @media (max-width: 600px) {
@@ -135,6 +211,10 @@
                 gap: 12px;
                 align-items: flex-start;
             }
+            .back-top {
+                bottom: 16px;
+                right: 16px;
+            }
         }
     </style>
 </head>
@@ -148,126 +228,203 @@
     </div>
 
     <!-- 顶部浏览器下载提示 -->
-    <div class="browser-tip">
-        没有浏览器? <a href="https://github.com/ungoogled-software/ungoogled-chromium" target="_blank">点击这里下载一个!</a>
+    <div class="browser-tip" id="browserTip">
+        没有浏览器? <a href="https://v4.gh-proxy.org/https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/download/149.0.7827.155-1.1/ungoogled-chromium_149.0.7827.155-1.1_installer_x64.exe" target="_blank">点击这里下载一个!</a>
+        <button class="close-tip" id="closeTip">×</button>
     </div>
 
     <!-- GitHub 快捷入口 -->
     <div class="category-block">
         <div class="category-title">GitHub 快捷访问</div>
-        <div class="link-group">
-            <a class="nav-card" href="https://github.com" target="_blank">GitHub 主页</a>
-            <a class="nav-card" href="https://github.com/sakura01266/sakura01266.github.io" target="_blank">本导航项目仓库</a>
-        </div>
+        <div class="link-group" id="githubGroup"></div>
     </div>
 
-    <!-- 开发工具下载（Chromium） -->
+    <!-- 开发工具下载 -->
     <div class="category-block">
         <div class="category-title">开发工具下载</div>
-        <div class="link-group">
-            <h1>浏览器</h1>
-            <a class="nav-card" href="https://github.com/Hibbiki/chromium-win64/releases" target="_blank">Hibbiki Chromium</a>
-            <a class="nav-card" href="https://github.com/ungoogled-software/ungoogled-chromium" target="_blank">ungoogled-chromium</a>
-            <a class="nav-card" href="https://chromium.woolyss.com" target="_blank">woolyss下载站（即将停服）</a>
-            <a class="nav-card" href="https://chromium.woolyss.com" target="_blank">谷歌原版Chrome</a>
-            <h1>操作系统</h1>
-            <a class="nav-card" href="https://ubuntu.com/download/desktop" target="_blank">Ubuntu</a>
-            <a class="nav-card" href="https://fedoraproject.org/workstation/download" target="_blank">Fedora</a>
-            <a class="nav-card" href="https://mirrors.ustc.edu.cn/archlinux/iso" target="_blank">Arch Linux/<a>
-            <a class="nav-card" href="https://www.kali.org/get-kali/" target="_blank">Kali Linux</a>
-            <a class="nav-card" href="https://www.debian.org/distrib/" target="_blank">Debian</a>
-            <a class="nav-card" href="https://mirrors.ustc.edu.cn/linuxmint-cd/stable" target="_blank">Linux Mint</a>
-            <a class="nav-card" href="https://manjaro.org/products/download/x86">Manjaro</a>
-            <a class="nav-card" href="https://mirrors.ustc.edu.cn/linuxmint-cd/debian" target="_blank">LMDE</a>
-            <a class="nav-card" href="https://trisquel.info/en/download" target="_blank">Trisquel</a>
-
-        </div>
+        <div class="link-group" id="toolGroup"></div>
     </div>
 
-     <!-- Linux 常用命令速查（支持一键复制） -->
+    <!-- Linux 常用命令速查（支持一键复制+搜索） -->
     <div class="category-block">
         <div class="category-title">Linux 常用命令速查</div>
-        <div class="cmd-list">
-            <div class="cmd-box">
-                <span class="cmd-text">apt update && apt upgrade -y</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">dnf update -y</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">lsblk / fdisk -l 查看磁盘分区</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">smartctl --scan 硬盘健康检测</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">systemctl start / stop / enable 服务名</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">nmap 192.168.1.0/24 内网扫描</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">chmod 755 / chown 用户:组 文件</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">git add . && git commit -m "msg" && git push</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text">docker ps / docker run / docker rm</span>
-                <button class="copy-btn" onclick="copyText(this)">复制</button>
-            </div>
-        </div>
+        <input class="cmd-search" placeholder="输入关键词过滤命令..." id="cmdSearch">
+        <div class="cmd-list" id="cmdList"></div>
     </div>
+
+    <!-- 回到顶部按钮 -->
+    <button class="back-top" id="backTop">↑</button>
+
     <script>
-        // 全局变量
-        let currentTheme = "light";
-        // ========== 1. 本地存储读写（仅记忆主题） ==========
+        // ========== 配置区：新增链接/命令只改这里，不用动DOM ==========
+        const config = {
+            githubLinks: [
+                {name: "GitHub 主页", url: "https://github.com"},
+                {name: "本项目发布页", url: "https://github.com/sakura01266/sakura01266.github.io"}
+            ],
+            tools: [
+                {type: "浏览器", list: [
+                    {name: "Hibbiki Chromium", url: "https://github.com/Hibbiki/chromium-win64/releases"},
+                    {name: "ungoogled-chromium", url: "https://github.com/ungoogled-software/ungoogled-chromium-windows/releases"},
+                    {name: "woolyss-chromium下载站（即将停服）", url: "https://chromium.woolyss.com"},
+                    {name: "谷歌原版Chrome", url: "https://chromium.woolyss.com"},
+                    {name: "Firefox", url: "https://www.firefox.com/zh-CN/download/all/"},
+                    {name: "Librewolf", url: "https://librewolf.net/installation/"},
+                    {name: "Brave", url: "https://www.brave.com/zh/"}
+                ]},
+                {type: "操作系统", list: [
+                    {name: "Ubuntu", url: "https://ubuntu.com/download/desktop"},
+                    {name: "Fedora", url: "https://fedoraproject.org/workstation/download"},
+                    {name: "Arch Linux", url: "https://mirrors.ustc.edu.cn/archlinux/iso"},
+                    {name: "Kali Linux", url: "https://www.kali.org/get-kali/"},
+                    {name: "Debian", url: "https://www.debian.org/distrib/"},
+                    {name: "Linux Mint", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/stable"},
+                    {name: "Manjaro", url: "https://manjaro.org/products/download/x86"},
+                    {name: "LMDE", url: "https://mirrors.ustc.edu.cn/linuxmint-cd/debian"},
+                    {name: "Trisquel", url: "https://trisquel.info/en/download"}
+                ]},
+                {type: "开发工具", list: [
+                    {name: "Android Studio", url: "https://developer.android.google.cn/studio"},
+                    {name: "Visual Studio Code", url: "https://code.visualstudio.com/Download"},
+                    {name: "Visual Studio", url: "https://visualstudio.microsoft.com/zh-hans/downloads/"},
+                    {name: "vscodium", url: "https://github.com/VSCodium/vscodium/releases"},
+                    {name: "Node.js", url: "https://nodejs.org/zh-cn/download/"},
+                    {name: "Python", url: "https://www.python.org/downloads/"},
+                    {name: "lua", url: "https://www.lua.org/download.html"}
+                ]}
+            ],
+            cmds: [
+                "apt update && apt upgrade -y",
+                "dnf update -y",
+                "lsblk / fdisk -l 查看磁盘分区",
+                "smartctl --scan 硬盘健康检测",
+                "systemctl start / stop / enable 服务名",
+                "nmap 192.168.1.0/24 内网扫描",
+                "chmod 755 / chown 用户:组 文件",
+                "git add . && git commit -m \"msg\" && git push",
+                "docker ps / docker run / docker rm"
+            ]
+        };
+
+        // ========== 本地存储工具 ==========
         function saveStorage(key, val) {
             localStorage.setItem(key, val);
         }
         function getStorage(key) {
             return localStorage.getItem(key);
         }
-        // 页面加载读取记忆配置
-        window.addEventListener("DOMContentLoaded", () => {
-            // 读取上次主题
-            const saveTheme = getStorage("site_theme");
-            if (saveTheme) {
-                currentTheme = saveTheme;
-                document.documentElement.setAttribute("data-theme", currentTheme);
-                setThemeActive(currentTheme);
+
+        // ========== 页面渲染函数 ==========
+        function renderGitHub() {
+            const wrap = document.getElementById("githubGroup");
+            wrap.innerHTML = config.githubLinks.map(item => `
+                <a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>
+            `).join("");
+        }
+        function renderTools() {
+            const wrap = document.getElementById("toolGroup");
+            let html = "";
+            config.tools.forEach(group => {
+                html += `<h3>${group.type}</h3>`;
+                group.list.forEach(item => {
+                    html += `<a class="nav-card" href="${item.url}" target="_blank">${item.name}</a>`;
+                })
+            })
+            wrap.innerHTML = html;
+        }
+        function renderCmdList(filter = "") {
+            const wrap = document.getElementById("cmdList");
+            const filterText = filter.toLowerCase();
+            let html = "";
+            config.cmds.forEach(cmd => {
+                if (!cmd.toLowerCase().includes(filterText)) return;
+                html += `
+                    <div class="cmd-box" data-cmd="${cmd}">
+                        <span class="cmd-text">${cmd}</span>
+                        <button class="copy-btn" onclick="copyText(this)">复制</button>
+                    </div>
+                `;
+            })
+            wrap.innerHTML = html;
+        }
+
+        // ========== 复制命令（增加异常捕获） ==========
+        window.copyText = async function(btn) {
+            try {
+                const text = btn.parentElement.querySelector(".cmd-text").innerText;
+                await navigator.clipboard.writeText(text);
+                btn.innerText = "已复制!";
+            } catch (err) {
+                btn.innerText = "复制失败";
             }
-        });
-        // ========== 2. 深浅色主题切换逻辑 ==========
+            setTimeout(() => btn.innerText = "复制", 1200);
+        }
+
+        // ========== 主题切换 ==========
+        let currentTheme = "light";
         function setThemeActive(mode) {
             document.querySelectorAll(".theme-btn").forEach(btn => {
                 btn.classList.remove("active");
                 if (btn.dataset.mode === mode) btn.classList.add("active");
             })
         }
-        document.querySelectorAll(".theme-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                currentTheme = btn.dataset.mode;
+        function initTheme() {
+            const saveTheme = getStorage("site_theme");
+            if (saveTheme) {
+                currentTheme = saveTheme;
                 document.documentElement.setAttribute("data-theme", currentTheme);
                 setThemeActive(currentTheme);
-                saveStorage("site_theme", currentTheme);
+            }
+            document.querySelectorAll(".theme-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    currentTheme = btn.dataset.mode;
+                    document.documentElement.setAttribute("data-theme", currentTheme);
+                    setThemeActive(currentTheme);
+                    saveStorage("site_theme", currentTheme);
+                })
             })
-        })
-        // ========== 3. Linux命令一键复制功能 ==========
-        function copyText(btn) {
-            const text = btn.parentElement.querySelector(".cmd-text").innerText;
-            navigator.clipboard.writeText(text);
-            btn.innerText = "已复制!";
-            setTimeout(() => btn.innerText = "复制", 1200);
         }
+
+        // ========== 顶部提示关闭 ==========
+        function initTipClose() {
+            const tip = document.getElementById("browserTip");
+            const closeBtn = document.getElementById("closeTip");
+            const isClosed = getStorage("tip_closed");
+            if (isClosed === "1") tip.classList.add("close");
+            closeBtn.addEventListener("click", () => {
+                tip.classList.add("close");
+                saveStorage("tip_closed", "1");
+            })
+        }
+
+        // ========== 命令搜索过滤 ==========
+        function initCmdSearch() {
+            const input = document.getElementById("cmdSearch");
+            input.addEventListener("input", e => {
+                renderCmdList(e.target.value);
+            })
+        }
+
+        // ========== 回到顶部按钮 ==========
+        function initBackTop() {
+            const btn = document.getElementById("backTop");
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 300) btn.classList.add("show");
+                else btn.classList.remove("show");
+            })
+            btn.addEventListener("click", () => window.scrollTo(0, 0));
+        }
+
+        // ========== 页面加载入口 ==========
+        window.addEventListener("DOMContentLoaded", () => {
+            renderGitHub();
+            renderTools();
+            renderCmdList();
+            initTheme();
+            initTipClose();
+            initCmdSearch();
+            initBackTop();
+        });
     </script>
 </body>
 </html>
